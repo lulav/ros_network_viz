@@ -144,6 +144,21 @@ class ROSConnection:
 
     def __repr__(self):
         return self.conn_name
+    
+    def to_dict(self):
+        # QOS ENUM types: https://docs.ros2.org/foxy/api/rclpy/api/qos.html?highlight=qos%20qosprofile#rclpy.qos.QoSProfile
+        data = {
+            "conn_name": self.conn_name,
+            "conn_type": self.conn_type,
+            "qos_profile": {"durability": int(self.qos_profile.durability),
+                            "reliability": int(self.qos_profile.reliability),
+                            "history": int(self.qos_profile.history),
+                            "deadline": self.qos_profile.deadline.nanoseconds,
+                            "depth": int(self.qos_profile.depth),
+                            "lifespan": self.qos_profile.lifespan.nanoseconds,
+                            "liveliness": int(self.qos_profile.liveliness)}
+        } if self.qos_profile else None
+        return data
 
 
 class ROSNodeInfo:
@@ -206,7 +221,15 @@ class ROSNodeInfo:
     def add_action_server(self, action_name, action_type):
         bisect.insort_left(self.action_servers,
                            ROSConnection(action_name, action_type, None))
-
+        
+    def to_dict(self):
+        return {
+                "topic_publishers": self.topic_publishers,
+                "service_clients": self.service_clients,
+                "action_clients": self.action_clients,
+                "topic_subscribers": self.topic_subscribers,
+                "service_servers": self.service_servers,
+                "action_servers": self.action_servers}
 
 class ROSAsyncServiceStateMachine:
 

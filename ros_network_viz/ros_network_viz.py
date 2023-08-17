@@ -14,6 +14,7 @@
 
 import signal
 import sys
+import json
 
 import networkx
 
@@ -922,12 +923,30 @@ class MainGrid(QtWidgets.QWidget):
         if not is_hidden:
             item.setCheckState(QtCore.Qt.Checked)
         return item
+    
+    @staticmethod
+    def node_list_to_json(node_list):
+        tmp_node_dict = {}
+        node_dict = {}
+        raw_node_dict = {v.name: v.to_dict() for v in node_list.values() if "rqt_network" not in v.name}
+        for node_name, val in raw_node_dict.items():
+            for k, v in val.items():
+                if len(v) > 1:
+                    tmp_node_dict[k] = {str(x): x.to_dict() for x in v}
+                else:
+                    tmp_node_dict[k] = v
+            
+            node_dict[node_name] = tmp_node_dict
+
+        print(node_dict)
 
     def update_nodes(self):
         node_list = self._ros_network.get_nodes()
 
         if node_list == self._node_list:
             return
+
+        self.node_list_to_json(node_list)
 
         # Here, we assume that we are going to remove *all* of the existing
         # nodes.  As we see node names in the new list, we remove them from
