@@ -931,10 +931,7 @@ class MainGrid(QtWidgets.QWidget):
         raw_node_dict = {v.name: v.to_dict() for v in node_list.values() if "rqt_network" not in v.name}
         for node_name, val in raw_node_dict.items():
             for k, v in val.items():
-                if type(v) == list:
-                    tmp_node_dict[k] = {str(x): x.to_dict() for x in v}
-                else:
-                    tmp_node_dict[k] = v
+                    tmp_node_dict[k] = {str(x): x.to_dict() for x in v} if type(v) == list else v
             
             node_dict[node_name] = tmp_node_dict
 
